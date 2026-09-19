@@ -2,35 +2,28 @@
 
 [English](architecture.md)
 
-## ビルド出力
+## data ownership
 
-このプロジェクトは実行時の動作と互換性メタデータを分離し、リポジトリに保存された同じソース定義から両方を生成します。
+`BinaryDataStore`がproject sessionのbindingを所有します。登録時は`ArrayBuffer`／`Uint8Array`を必ずcopyし、size上限を検証し、SHA-256を計算してからbindingをatomicに置換します。保存bytesをbase64や文字列へ変換しません。
 
-```text
-src/index.ts + src/extension.ts
-  -> vite-plugin-turbowarp-extension
-  -> dist/<extension>.js
+各bindingはbytes、MIME type、byte length、digest、opaque revisionを持ちます。`snapshot()`とraw body openは毎回独立したbyte copyを返します。
 
-src/config.ts + src/block-definitions.json
-  -> extension-api-manifest Viteプラグイン
-  -> dist/extension-manifest.json
-```
+## Named Data provider
 
-manifestプラグインはViteのビルド後フェーズで実行されます。これにより、JavaScriptプラグインの単一出力検証を維持しながら、TurboWarpバンドルの完成後にだけmanifestを追加します。
+canonicalな`@kubohiroya/turbowarp-named-data`契約を直接実装し、runtime共通registryへpersistent登録します。
 
-## 拡張機能API manifest v1
+- namespace `binary`、kind `binary`、scope `project`
+- representationは`raw`のみ
+- replayableな`Uint8Array` body
+- 安定した`NAMED_DATA_*` error
+- abort検査と冪等なhandle release
 
-`schemas/extension-manifest.schema.json`が規範となるJSON Schemaです。`formatVersion`は`1`で、互換性のないmanifest形式を導入するときに変更する必要があります。
+相互運用fixtureは`tests/fixtures/named-data-provider-contract.json`です。
 
-v1契約は次の情報を含みます。
+## lifecycleと段階導入
 
-- TurboWarp拡張機能のID
-- 各ブロックのopcodeとブロック種類
-- 各引数のID、引数種類、任意のメニュー参照
-- 各メニューのIDとReporterブロックを受け付けるかどうか
+`BINARY_DATA_MVP`はextension構築時に一度だけ読み、既定値はfalseです。flag OFFではblockとproviderを公開しません。`PROJECT_STOP_ALL`ではprovider登録を維持したままbindingと追跡中handleを解放します。bytesの永続化はMVP対象外です。
 
-ブロック、引数、メニューは、シリアライズ前に識別子で並べ替えられます。テキスト、説明、既定値、静的メニュー項目は、保存済みプロジェクトのAPI参照を識別しないため、意図的に除外しています。そのため互換性チェッカーは、API変更とドキュメントまたはローカライズの変更を区別できます。
+## build artifact
 
-## 差分の検出
-
-`dist/`はリリース成果物としてコミットされます。`npm run check:dist`は両方のファイルを再ビルドし、`dist/`配下に変更、削除、未追跡ファイルがある場合に失敗します。これにより、ローカル検証とCIの両方でmanifestとバンドルの差分を検出できます。
+sourceとblock definitionから`dist/binary-data.js`と`dist/extension-manifest.json`を生成します。両方をrelease artifactとしてcommitし、`pnpm run check`で再現性を検査します。

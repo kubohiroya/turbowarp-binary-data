@@ -1,110 +1,59 @@
-# TurboWarp-Extension-Template
+# TurboWarp-Binary-Data
 
 [English](README.md)
 
-ViteでTurboWarp拡張機能を開発、テスト、ビルド、リリースするための再利用可能なTypeScriptテンプレートです。
-
-## 利用者ガイド
-
-このテンプレートからリポジトリを作成し、packageと拡張機能metadataを置き換え、`src/extension.ts`でブロックを実装し、生成済みartifactをコミットします。
-
-参照用にtemplate packageを使う場合はversionを固定します。
-
-```bash
-pnpm add --save-exact @kubohiroya/turbowarp-extension-template@0.4.0
-```
+project scopeの名前付きバイナリ値と、再利用可能なraw body snapshotを提供するTurboWarp拡張機能です。
 
 ## できること
 
-- TurboWarp互換の単一JavaScript拡張ファイルをビルドします。
-- 決定的な`dist/extension-manifest.json` API契約を出力します。
-- `src/block-definitions.json`からREADMEのブロック参照を生成します。
-- source、document、生成済み`dist/`、repository policy、npm package内容を一括検査します。
+- `ArrayBuffer`／`Uint8Array`をcopy-inでatomic登録
+- UTF-8文字列からbinaryを作るTurboWarpブロック
+- MIME type、byte length、SHA-256、opaque revisionの取得
+- 共通Named Data provider契約によるraw body snapshot
+- project停止時のsession data解放
 
-## 要件と安全性
+base64、data URL、JavaScript文字列はcanonical storageとして使用しません。
 
-- Node.js 22以上
-- Corepack経由のpnpm
-- `unsandboxed: true`を設定した拡張機能ではTurboWarpのunsandboxed extension option
+## 有効化と安全性
 
-信頼できる生成済み拡張コードだけを読み込んでください。unsandboxed extensionはブラウザページへアクセスできます。
+MVPは既定OFFです。拡張機能の読み込み前に次を設定します。
 
-## インストール
-
-```bash
-corepack enable
-pnpm install --frozen-lockfile
+```js
+globalThis.BINARY_DATA_MVP = true;
 ```
 
-## クイックスタート
+unsandboxed extensionとして動作し、1値あたりの既定上限は16 MiBです。信頼できる生成済みコードだけを読み込んでください。
 
-1. このテンプレートからリポジトリを作成します。
-2. `package.json` metadataと`repo-policy.json`を更新します。
-3. `src/config.ts`を編集します。
-4. `src/block-definitions.json`にブロックを定義します。
-5. `src/extension.ts`に実行時の動作を実装します。
-6. `pnpm run docs`を実行します。
-7. `pnpm run check`を実行します。
+## JavaScript API
 
-開発中に継続ビルドする場合:
+`registerBytes(name, bytes, options)`は入力をcopy-inし、size、MIME type、abort、SHA-256を検証してから登録します。`snapshot(name)`は独立した`Uint8Array`を返します。
 
-```bash
-pnpm run dev
-```
+`getNamedDataProvider()`はcanonicalな`@kubohiroya/turbowarp-named-data`契約を使用し、`binary` namespace、`binary` kind、`project` scope、`raw` representationに対応します。providerはruntime共通registryへpersistent登録されます。
 
-## ブロック参照
+## ブロック
 
-### `hello [NAME]`
+- `store UTF-8 [TEXT] as binary [NAME] with MIME [MIME]`
+- `binary [NAME] exists?`
+- `delete binary [NAME]`
+- `MIME type of binary [NAME]`
+- `byte length of binary [NAME]`
+- `SHA-256 of binary [NAME]`
 
-指定された名前へのローカライズ可能な挨拶を返します。
+## lifecycleとHTTP連携
 
-| Property | Value |
-|---|---|
-| Type | Reporter |
-| Opcode | `hello` |
-| `NAME` | String, default: `world` |
+open済みbodyは一貫したsnapshotです。同じ名前を置換するとrevisionは変わりますが、以前のsnapshotは変化しません。handleの`release()`は冪等です。`PROJECT_STOP_ALL`でbindingと追跡中handleを解放します。
 
-## 重要な動作
-
-```text
-TypeScript source
-  -> Vite
-  -> vite-plugin-turbowarp-extension
-  -> dist/<extension-name>.js
-
-Extension config + block definitions
-  -> extension manifest plugin
-  -> dist/extension-manifest.json
-```
-
-生成されるJavaScriptは、Extension Gallery metadataと標準の`(function (Scratch) { ... })(Scratch);` wrapperを持つ、単一の非minify TurboWarp拡張ファイルです。
-
-各ビルドは`formatVersion: 1`の`dist/extension-manifest.json`を出力します。このファイルには、拡張機能ID、ブロックopcodeと種類、引数IDと種類、メニュー参照が決定的な順序で記録されます。`sb3-toolchain`のようなツールは、埋め込み拡張機能の更新やID移行前にこの契約を比較できます。v1契約については[アーキテクチャ文書](docs/architecture.ja.md)と[JSON Schema](schemas/extension-manifest.schema.json)を参照してください。
-
-## 互換性
-
-canonical READMEは`README.md`です。日本語ドキュメントは`README.ja.md`を使います。新規リポジトリでは`README_ja.md`を作成しません。
-
-リポジトリ固有の差分は`repo-policy.json`に記録します。upstream fork、mixed-license content、legacy package name、third-party bundleは、検査を弱めるのではなくpolicy例外として表現します。
+共通fixtureは`tests/fixtures/named-data-provider-contract.json`です。詳細は[アーキテクチャ文書](docs/architecture.ja.md)を参照してください。
 
 ## 開発
 
 ```bash
+corepack enable
+pnpm install --frozen-lockfile
 pnpm run check
 ```
 
-このcheckは型検査、lint、test、生成README検証、`dist/`再現性、repository policy検証、npm package dry-runを実行します。
-
-## リリース
-
-`package.json`をversionの正本にします。公開前に次を実行します。
-
-```bash
-pnpm run check
-npm pack --dry-run --ignore-scripts
-```
-
-release artifactには`dist/example-extension.js`、`dist/extension-manifest.json`、`README.md`、`README.ja.md`、`LICENSE`を含めます。
+生成される拡張機能は`dist/binary-data.js`です。
 
 ## ライセンス
 

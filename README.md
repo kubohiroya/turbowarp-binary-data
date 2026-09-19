@@ -1,95 +1,123 @@
-# TurboWarp-Extension-Template
+# TurboWarp-Binary-Data
 
 [日本語](README.ja.md)
 
-A reusable TypeScript template for developing, testing, building, and releasing TurboWarp extensions with Vite.
-
-## User guide
-
-Create a repository from this template, replace the package and extension metadata, implement blocks in `src/extension.ts`, and keep generated artifacts checked in.
-
-The template package is version-pinned when it is used as a reference:
-
-```bash
-pnpm add --save-exact @kubohiroya/turbowarp-extension-template@0.4.0
-```
+A TurboWarp extension for project-scoped named binary values and replayable raw body snapshots.
 
 ## What it does
 
-- builds a single TurboWarp-compatible JavaScript extension file;
-- emits a deterministic `dist/extension-manifest.json` API contract;
-- generates the README block reference from `src/block-definitions.json`;
-- verifies source, documentation, generated `dist/` output, repository policy, and npm package contents in one check.
+- stores `ArrayBuffer` and `Uint8Array` values with copy-in semantics;
+- creates binary values from UTF-8 text blocks;
+- exposes MIME type, byte length, SHA-256 digest, and opaque revision metadata;
+- supplies independent raw snapshots through the shared Named Data provider contract;
+- clears session values when the project stops.
+
+Binary bytes remain bytes. Base64, data URLs, and JavaScript strings are not canonical storage formats.
 
 ## Requirements and safety
 
-- Node.js 22 or newer;
-- pnpm through Corepack;
-- TurboWarp's unsandboxed extension option only when your extension metadata sets `unsandboxed: true`.
+- Node.js 22 or newer for development;
+- TurboWarp unsandboxed extension mode;
+- an explicit startup flag, `globalThis.BINARY_DATA_MVP = true`, because the MVP is disabled by default;
+- a default per-value limit of 16 MiB.
 
 Only load generated extension code that you trust. Unsandboxed extensions run with browser page access.
 
 ## Installation
 
 ```bash
-corepack enable
-pnpm install --frozen-lockfile
+pnpm add @kubohiroya/turbowarp-binary-data@0.1.0
 ```
 
-## Quick start
-
-1. Create a repository from this template.
-2. Update `package.json` metadata and `repo-policy.json`.
-3. Edit `src/config.ts`.
-4. Define blocks in `src/block-definitions.json`.
-5. Implement runtime behavior in `src/extension.ts`.
-6. Run `pnpm run docs`.
-7. Run `pnpm run check`.
-
-For continuous rebuilding during development:
+For local development:
 
 ```bash
-pnpm run dev
+corepack enable
+pnpm install --frozen-lockfile
+pnpm run check
 ```
+
+The generated TurboWarp extension is `dist/binary-data.js`.
+
+## JavaScript API
+
+`BinaryDataExtension.registerBytes(name, bytes, options)` atomically copies bytes into the project registry after validating size, MIME type, abort state, and SHA-256. `snapshot(name)` returns a new `Uint8Array`; mutating it never changes the stored value.
+
+`getNamedDataProvider()` exposes the canonical `@kubohiroya/turbowarp-named-data` provider contract while the feature flag is enabled. It accepts only `{namespace: "binary", kind: "binary", scope: "project"}` references with the `raw` representation. The provider is registered persistently in the runtime-shared registry.
 
 ## Block reference
 
 <!-- BEGIN GENERATED BLOCKS -->
 
-### `hello [NAME]`
+### `store UTF-8 [TEXT] as binary [NAME] with MIME [MIME]`
 
-Returns a localized greeting for the supplied name.
+Copies UTF-8 encoded text into a project-scoped named binary value.
+
+| Property | Value |
+|---|---|
+| Type | Command |
+| Opcode | `createUtf8` |
+| `TEXT` | String, default: `Hello` |
+| `NAME` | String, default: `message` |
+| `MIME` | String, default: `text/plain; charset=utf-8` |
+
+### `binary [NAME] exists?`
+
+Reports whether a project-scoped named binary value exists.
+
+| Property | Value |
+|---|---|
+| Type | Boolean |
+| Opcode | `hasBinary` |
+| `NAME` | String, default: `message` |
+
+### `delete binary [NAME]`
+
+Deletes a project-scoped named binary value.
+
+| Property | Value |
+|---|---|
+| Type | Command |
+| Opcode | `deleteBinary` |
+| `NAME` | String, default: `message` |
+
+### `MIME type of binary [NAME]`
+
+Returns the MIME type of a named binary value.
 
 | Property | Value |
 |---|---|
 | Type | Reporter |
-| Opcode | `hello` |
-| `NAME` | String, default: `world` |
+| Opcode | `mimeType` |
+| `NAME` | String, default: `message` |
+
+### `byte length of binary [NAME]`
+
+Returns the byte length of a named binary value.
+
+| Property | Value |
+|---|---|
+| Type | Reporter |
+| Opcode | `byteLength` |
+| `NAME` | String, default: `message` |
+
+### `SHA-256 of binary [NAME]`
+
+Returns the SHA-256 digest of a named binary value.
+
+| Property | Value |
+|---|---|
+| Type | Reporter |
+| Opcode | `sha256` |
+| `NAME` | String, default: `message` |
 
 <!-- END GENERATED BLOCKS -->
 
-## Important behavior
+## Lifecycle and HTTP integration
 
-```text
-TypeScript source
-  -> Vite
-  -> vite-plugin-turbowarp-extension
-  -> dist/<extension-name>.js
+An opened raw body is a consistent snapshot. Replacing the same name changes its opaque revision without changing earlier snapshots. Handles have idempotent `release()` methods. `PROJECT_STOP_ALL` clears project bindings and tracked handles.
 
-Extension config + block definitions
-  -> extension manifest plugin
-  -> dist/extension-manifest.json
-```
-
-The generated JavaScript is a single, non-minified TurboWarp extension file with Extension Gallery metadata and the standard `(function (Scratch) { ... })(Scratch);` wrapper.
-
-Each build emits `dist/extension-manifest.json` with `formatVersion: 1`. It records the extension ID, block opcodes and types, argument IDs and types, and menu references in a deterministic order. Tools such as `sb3-toolchain` can compare this contract before updating an embedded extension or migrating its ID. See [the architecture document](docs/architecture.md) and the [JSON Schema](schemas/extension-manifest.schema.json) for the v1 contract.
-
-## Compatibility
-
-The canonical README is `README.md`. Japanese documentation uses `README.ja.md`; new repositories should not create `README_ja.md`.
-
-Repository-level differences belong in `repo-policy.json`. Use policy exceptions for upstream forks, mixed-license content, legacy package names, or third-party bundles instead of weakening checks silently.
+The cross-repository fixture is in `tests/fixtures/named-data-provider-contract.json`. See [the architecture document](docs/architecture.md) for contract details.
 
 ## Development
 
@@ -97,18 +125,7 @@ Repository-level differences belong in `repo-policy.json`. Use policy exceptions
 pnpm run check
 ```
 
-The check runs type checking, linting, tests, generated README validation, `dist/` reproducibility, repository policy validation, and an npm package dry run.
-
-## Release
-
-Keep `package.json` as the version source of truth. Before publishing, run:
-
-```bash
-pnpm run check
-npm pack --dry-run --ignore-scripts
-```
-
-Release artifacts include `dist/example-extension.js`, `dist/extension-manifest.json`, `README.md`, `README.ja.md`, and `LICENSE`.
+This runs type checking, linting, tests, generated documentation validation, reproducible dist validation, repository policy checks, and an npm package dry run.
 
 ## License
 

@@ -2,43 +2,28 @@
 
 [日本語](architecture.ja.md)
 
+## Data ownership
+
+`BinaryDataStore` owns project-session bindings. Registration always copies an `ArrayBuffer` or `Uint8Array`, validates the configured size limit, computes SHA-256, then atomically replaces the binding. Stored bytes are never represented as base64 or text.
+
+Each binding contains bytes, MIME type, byte length, digest, and an opaque monotonically changing revision. Every `snapshot()` and raw body open returns an independent byte copy.
+
+## Named Data provider
+
+The provider directly implements the canonical `@kubohiroya/turbowarp-named-data` contract and registers persistently in its runtime-shared registry:
+
+- namespace `binary`, kind `binary`, scope `project`;
+- representation `raw` only;
+- replayable `Uint8Array` body;
+- stable `NAMED_DATA_*` errors;
+- abort checks and idempotent handle release.
+
+The interoperability fixture is `tests/fixtures/named-data-provider-contract.json`.
+
+## Lifecycle and rollout
+
+`BINARY_DATA_MVP` is read once when the extension is constructed and defaults to false. With the flag off, no blocks or provider are exposed. `PROJECT_STOP_ALL` clears bindings and tracked handles while retaining the provider registration. Persistent byte storage is intentionally outside the MVP.
+
 ## Build outputs
 
-The project keeps runtime behavior and compatibility metadata separate while generating both from
-the same checked-in source definitions.
-
-```text
-src/index.ts + src/extension.ts
-  -> vite-plugin-turbowarp-extension
-  -> dist/<extension>.js
-
-src/config.ts + src/block-definitions.json
-  -> extension-api-manifest Vite plugin
-  -> dist/extension-manifest.json
-```
-
-The manifest plugin runs in Vite's post-build phase. This preserves the JavaScript plugin's
-single-output validation and adds the manifest only after the TurboWarp bundle is complete.
-
-## Extension API manifest v1
-
-`schemas/extension-manifest.schema.json` is the normative JSON Schema. `formatVersion` is `1` and
-must change when an incompatible manifest shape is introduced.
-
-The v1 contract contains:
-
-- the TurboWarp extension ID;
-- each block opcode and block type;
-- each argument ID, argument type, and optional menu reference;
-- each menu ID and whether it accepts reporter blocks.
-
-Blocks, arguments, and menus are sorted by their identifiers before serialization. Text,
-descriptions, default values, and static menu items are intentionally excluded because they do not
-identify saved-project API references. A compatibility checker can therefore distinguish API
-changes from documentation or localization changes.
-
-## Drift detection
-
-`dist/` is committed as a release artifact. `npm run check:dist` rebuilds both files and fails when
-Git reports any modified, deleted, or untracked file below `dist/`. This catches manifest and bundle
-drift in local checks and CI.
+Source and block definitions generate `dist/binary-data.js` and `dist/extension-manifest.json`. Both are checked release artifacts verified by `pnpm run check`.

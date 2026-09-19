@@ -3,26 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Example Extension documentation</title>
+  <title>Binary Data for TurboWarp</title>
   <style>
     body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:900px;margin:0 auto;padding:2rem;line-height:1.6;color:#222}
     code{background:#f3f3f3;padding:.1em .3em;border-radius:.25em}
-    pre{background:#f6f8fa;padding:1rem;overflow:auto;border-radius:.5rem}
   </style>
 </head>
 <body>
-  <h1>Example Extension</h1>
-  <p>This is the English user documentation published with the TurboWarp Extension Template.</p>
-
+  <h1>Binary Data for TurboWarp</h1>
+  <p>Store project-scoped named bytes and expose replayable raw body snapshots without converting data to base64 or text.</p>
+  <h2>Enable the MVP</h2>
+  <p>Set <code>globalThis.BINARY_DATA_MVP = true</code> before loading the unsandboxed extension.</p>
   <h2>Blocks</h2>
-  <h3><code>hello [NAME]</code></h3>
-  <p>Returns a localized greeting for the supplied name.</p>
-
-  <h2>Template requirement</h2>
-  <p>Repositories created from this template should replace this page with English documentation for their extension and keep the GitHub Pages URL in <code>extensionConfig.docsURI</code>.</p>
-  <p>They should also replace the example <code>blockIconURI</code> with a meaningful, self-contained SVG icon encoded as <code>data:image/svg+xml;base64,...</code>.</p>
-
-  <h2>Development</h2>
-  <p>See the repository README and architecture documentation for build, test, release, and compatibility details.</p>
+  <p>Create binary data from UTF-8 text, test and delete names, and inspect MIME type, byte length, and SHA-256.</p>
+  <h2>Integration</h2>
+  <p>The JavaScript API accepts <code>ArrayBuffer</code> and <code>Uint8Array</code>. The Named Data provider exposes project-scoped <code>raw</code> snapshots for HTTP responses.</p>
 </body>
 </html>

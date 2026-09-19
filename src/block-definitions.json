@@ -1,14 +1,51 @@
 {
-  "extensionName": "TurboWarp-Example-Extension",
+  "extensionName": "Binary Data",
   "blocks": [
     {
-      "opcode": "hello",
-      "blockType": "REPORTER",
-      "text": "hello [NAME]",
-      "description": "Returns a localized greeting for the supplied name.",
+      "opcode": "createUtf8",
+      "blockType": "COMMAND",
+      "text": "store UTF-8 [TEXT] as binary [NAME] with MIME [MIME]",
+      "description": "Copies UTF-8 encoded text into a project-scoped named binary value.",
       "arguments": {
-        "NAME": {"type": "STRING", "defaultValue": "world"}
+        "TEXT": {"type": "STRING", "defaultValue": "Hello"},
+        "NAME": {"type": "STRING", "defaultValue": "message"},
+        "MIME": {"type": "STRING", "defaultValue": "text/plain; charset=utf-8"}
       }
+    },
+    {
+      "opcode": "hasBinary",
+      "blockType": "BOOLEAN",
+      "text": "binary [NAME] exists?",
+      "description": "Reports whether a project-scoped named binary value exists.",
+      "arguments": {"NAME": {"type": "STRING", "defaultValue": "message"}}
+    },
+    {
+      "opcode": "deleteBinary",
+      "blockType": "COMMAND",
+      "text": "delete binary [NAME]",
+      "description": "Deletes a project-scoped named binary value.",
+      "arguments": {"NAME": {"type": "STRING", "defaultValue": "message"}}
+    },
+    {
+      "opcode": "mimeType",
+      "blockType": "REPORTER",
+      "text": "MIME type of binary [NAME]",
+      "description": "Returns the MIME type of a named binary value.",
+      "arguments": {"NAME": {"type": "STRING", "defaultValue": "message"}}
+    },
+    {
+      "opcode": "byteLength",
+      "blockType": "REPORTER",
+      "text": "byte length of binary [NAME]",
+      "description": "Returns the byte length of a named binary value.",
+      "arguments": {"NAME": {"type": "STRING", "defaultValue": "message"}}
+    },
+    {
+      "opcode": "sha256",
+      "blockType": "REPORTER",
+      "text": "SHA-256 of binary [NAME]",
+      "description": "Returns the SHA-256 digest of a named binary value.",
+      "arguments": {"NAME": {"type": "STRING", "defaultValue": "message"}}
     }
   ]
 }
