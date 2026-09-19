@@ -1,9 +1,67 @@
 {
   "formatVersion": 1,
-  "id": "kubohiroyaexampleextension",
+  "id": "kubohiroyabinarydata",
   "blocks": [
     {
-      "opcode": "hello",
+      "opcode": "byteLength",
+      "blockType": "REPORTER",
+      "arguments": [
+        {
+          "id": "NAME",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "opcode": "createUtf8",
+      "blockType": "COMMAND",
+      "arguments": [
+        {
+          "id": "MIME",
+          "type": "STRING"
+        },
+        {
+          "id": "NAME",
+          "type": "STRING"
+        },
+        {
+          "id": "TEXT",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "opcode": "deleteBinary",
+      "blockType": "COMMAND",
+      "arguments": [
+        {
+          "id": "NAME",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "opcode": "hasBinary",
+      "blockType": "BOOLEAN",
+      "arguments": [
+        {
+          "id": "NAME",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "opcode": "mimeType",
+      "blockType": "REPORTER",
+      "arguments": [
+        {
+          "id": "NAME",
+          "type": "STRING"
+        }
+      ]
+    },
+    {
+      "opcode": "sha256",
       "blockType": "REPORTER",
       "arguments": [
         {

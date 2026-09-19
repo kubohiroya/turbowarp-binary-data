@@ -1,0 +1,20 @@
+{
+  "namespace": "binary",
+  "kind": "binary",
+  "scope": "project",
+  "representation": "raw",
+  "name": "fixture",
+  "mediaType": "application/octet-stream",
+  "bytes": [0, 1, 2, 255],
+  "byteLength": 4,
+  "digest": "sha256-3d1f57c984978ef98a18378c8166c1cb8ede02c03eeb6aee7e2f121dfeee3e56",
+  "errors": {
+    "missing": "NAMED_DATA_NOT_FOUND",
+    "missingProject": "NAMED_DATA_SCOPE_MISMATCH",
+    "targetScope": "NAMED_DATA_SCOPE_MISMATCH",
+    "jsonRepresentation": "NAMED_DATA_REPRESENTATION_UNSUPPORTED",
+    "aborted": "NAMED_DATA_ABORTED",
+    "released": "NAMED_DATA_PROVIDER_RELEASED",
+    "tooLarge": "NAMED_DATA_BODY_TOO_LARGE"
+  }
+}
