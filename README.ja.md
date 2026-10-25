@@ -1,5 +1,7 @@
 # TurboWarp-Binary-Data
 
+<img src="assets/block-icon.svg" alt="" width="48" height="48">
+
 [English](README.md)
 
 project scopeの名前付きバイナリ値と、再利用可能なraw body snapshotを提供するTurboWarp拡張機能です。
