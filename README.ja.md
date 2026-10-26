@@ -50,6 +50,7 @@ open済みbodyは一貫したsnapshotです。同じ名前を置換するとrevi
 ## 開発
 
 ```bash
+npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
 pnpm run check
