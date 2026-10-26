@@ -18,7 +18,7 @@ Binary bytes remain bytes. Base64, data URLs, and JavaScript strings are not can
 
 ## Requirements and safety
 
-- Node.js 22 or newer for development;
+- Node.js 24 or newer for development;
 - TurboWarp unsandboxed extension mode;
 - an explicit startup flag, `globalThis.BINARY_DATA_MVP = true`, because the MVP is disabled by default;
 - a default per-value limit of 16 MiB.
@@ -34,6 +34,7 @@ pnpm add @kubohiroya/turbowarp-binary-data@0.2.0
 For local development:
 
 ```bash
+npm install --global corepack@latest
 corepack enable
 pnpm install --frozen-lockfile
 pnpm run check
