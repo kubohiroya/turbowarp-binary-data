@@ -6,6 +6,18 @@ English | [日本語](README.ja.md)
 
 A TurboWarp extension for project-scoped named binary values and replayable raw body snapshots.
 
+## Runnable sample
+
+[**Open the demo in TurboWarp Editor**](https://turbowarp.org/editor?project_url=https%3A%2F%2Fkubohiroya.github.io%2Fturbowarp-binary-data%2Fsamples%2Futf8-byte-count.sb3) · [Download the SB3](https://kubohiroya.github.io/turbowarp-binary-data/samples/utf8-byte-count.sb3)
+
+Select **Run without sandbox**, then **Allow**, and click the green flag.
+Hello uses 5 UTF-8 bytes; MIME is text/plain; charset=utf-8.
+
+This sample enables `BINARY_DATA_MVP` only while creating its extension instance, then restores the host flag. The extension default stays OFF.
+
+Editable sources and expected results: [`samples/README.md`](samples/README.md).
+Run `pnpm run samples:build` after source/bundle changes and `pnpm run samples:check` before committing.
+
 ## What it does
 
 - stores `ArrayBuffer` and `Uint8Array` values with copy-in semantics;
