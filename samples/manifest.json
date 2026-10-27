@@ -1,0 +1,28 @@
+{
+  "baseURL": "https://kubohiroya.github.io/turbowarp-binary-data/",
+  "extension": {
+    "id": "kubohiroyabinarydata",
+    "bundle": "dist/binary-data.js",
+    "unsandboxed": true,
+    "startupFlags": {
+      "BINARY_DATA_MVP": true
+    }
+  },
+  "samples": [
+    {
+      "name": "utf8-byte-count",
+      "title": "Binary Data minimal demo",
+      "checks": [
+        {
+          "variable": "bytes",
+          "equals": 5
+        },
+        {
+          "variable": "mime",
+          "equals": "text/plain; charset=utf-8"
+        }
+      ],
+      "instructions": "Hello uses 5 UTF-8 bytes; MIME is text/plain; charset=utf-8."
+    }
+  ]
+}

@@ -6,6 +6,17 @@
 
 project scopeの名前付きバイナリ値と、再利用可能なraw body snapshotを提供するTurboWarp拡張機能です。
 
+## 実行できるサンプル
+
+[**TurboWarp Editorでデモを開く**](https://turbowarp.org/editor?project_url=https%3A%2F%2Fkubohiroya.github.io%2Fturbowarp-binary-data%2Fsamples%2Futf8-byte-count.sb3) · [SB3をダウンロード](https://kubohiroya.github.io/turbowarp-binary-data/samples/utf8-byte-count.sb3)
+
+**Run without sandbox**を選んで**Allow**し、緑の旗を押します。
+`createUtf8`で`Hello`を登録し、`byteLength`が5、MIMEが指定値になることを表示。サンプルの元データと期待結果は[`samples/README.md`](samples/README.md)に記載しています。
+
+このサンプルは拡張生成時だけ`BINARY_DATA_MVP`を有効にし、直後にホストの設定を元に戻します。拡張本体の既定OFFは変更しません。
+
+`pnpm run samples:build`でSB3を再生成し、`pnpm run samples:check`で更新漏れと生成処理を確認します。
+
 ## できること
 
 - `ArrayBuffer`／`Uint8Array`をcopy-inでatomic登録
