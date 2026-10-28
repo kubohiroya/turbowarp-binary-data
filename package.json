@@ -1,8 +1,12 @@
 {
   "name": "@kubohiroya/turbowarp-binary-data",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Named binary data and raw body provider for TurboWarp.",
-  "author": "Hiroya Kubo <hiroya@cuc.ac.jp>",
+  "author": {
+    "name": "Hiroya Kubo",
+    "email": "hiroya@cuc.ac.jp",
+    "url": "https://github.com/kubohiroya"
+  },
   "license": "MPL-2.0",
   "homepage": "https://github.com/kubohiroya/turbowarp-binary-data#readme",
   "repository": {
@@ -59,9 +63,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
-    "@kubohiroya/turbowarp-extension-manifest": "^0.4.0",
-    "@kubohiroya/turbowarp-named-data": "^0.6.0",
-    "@kubohiroya/vite-plugin-turbowarp-extension": "^0.9.0",
+    "@kubohiroya/turbowarp-extension-manifest": "^0.5.0",
+    "@kubohiroya/turbowarp-named-data": "^0.7.0",
+    "@kubohiroya/vite-plugin-turbowarp-extension": "^0.10.0",
     "@types/node": "^24.13.3",
     "eslint": "^9.39.5",
     "jiti": "^2.7.0",
