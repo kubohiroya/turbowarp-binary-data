@@ -40,7 +40,7 @@ Only load generated extension code that you trust. Unsandboxed extensions run wi
 ## Installation
 
 ```bash
-pnpm add @kubohiroya/turbowarp-binary-data@0.3.0
+pnpm add @kubohiroya/turbowarp-binary-data@0.4.0
 ```
 
 For local development:
