@@ -1,6 +1,6 @@
 {
   "name": "@kubohiroya/turbowarp-binary-data",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Named binary data and raw body provider for TurboWarp.",
   "author": {
     "name": "Hiroya Kubo",
